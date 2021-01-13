@@ -1,0 +1,28 @@
+{
+  "name": "coursework",
+  "version": "1.0.0",
+  "description": "Second year student work. Group KP-92.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luamoris/db_coursework.git"
+  },
+  "keywords": [
+    "ioland"
+  ],
+  "author": "Iosif Isachko",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/luamoris/db_coursework/issues"
+  },
+  "homepage": "https://github.com/luamoris/db_coursework#readme",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "needle": "^2.6.0",
+    "tress": "^1.1.4"
+  }
+}
