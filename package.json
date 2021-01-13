@@ -22,7 +22,9 @@
   "homepage": "https://github.com/luamoris/db_coursework#readme",
   "dependencies": {
     "cheerio": "^1.0.0-rc.5",
+    "jsdom": "^16.4.0",
     "needle": "^2.6.0",
+    "pg": "^8.5.1",
     "tress": "^1.1.4"
   }
 }
