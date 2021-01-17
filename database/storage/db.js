@@ -25,14 +25,13 @@ class Database {
 			await this.insert(item);
 			console.log(++i);
 		}
-		// for(let j; j < 10; j++) {
+		// for(let j = 0; j < 10; j++) {
 		// 	await this.insert(storage[j]);
 		// 	console.log(j + 1);
 		// }
-		console.log('\n\nDONE!\n\n');
 	}
 
-	async getAll(limit, order) {
+	async getAllProduct(restrictions, order) {
 		const query = createQuery({
 			select: {
 				unique: 'DISTINCT',
@@ -43,16 +42,20 @@ class Database {
 				category: true,
 				goods_id: true,
 			},
-			restrictions: {
-				limit,
-			},
+			restrictions,
 			order,
 		});
 		const res = await this.db.request(query);
 		return res;
 	}
 
-	async getSearch(options) {
+	async getAllCategories(limit = 0, offset = 0) {
+		const query = `SELECT * FROM categories` + (limit != 0 ? ` LIMIT ${limit}` : '') + (offset != 0 ? ` OFFSET ${offset}` : '') + ';';
+		const res = await this.db.request(query);
+		return res;
+	}
+
+	async getSearchProduct(options) {
 		const query = createQuery(options);
 		const res = await this.db.request(query);
 		return res;
@@ -123,6 +126,8 @@ function createQuery(options) {
 	let order = options.order ? 'ORDER BY' : '';
 	let isOrder = false;
 	if (options.order) {
+		order += (isOrder && options.order.id ? ',' : '') + (options.order.id ? ` products.id ${options.order.id}` : '');
+		isOrder = options.order.id ? true : isOrder;
 		order += (isOrder && options.order.price ? ',' : '') + (options.order.price ? ` products.price ${options.order.price}` : '');
 		isOrder = options.order.price ? true : isOrder;
 		order += (isOrder && options.order.date ? ',' : '') + (options.order.date ? ` products.date ${options.order.date}` : '');
@@ -131,8 +136,8 @@ function createQuery(options) {
 		isOrder = options.order.category ? true : isOrder;
 	}
 
-	const limit = (options.restrictions.limit ? `LIMIT ${options.restrictions.limit}` : '');
-	const offset = (options.restrictions.offset ? `OFFSET ${options.restrictions.offset}` : '');
+	const limit = (options.restrictions && options.restrictions.limit ? `LIMIT ${options.restrictions.limit}` : '');
+	const offset = (options.restrictions && options.restrictions.offset ? `OFFSET ${options.restrictions.offset}` : '');
 
 	return `${scan ? scan + ' ' : ''}${explain ? explain + ' ' : ''}${select}${where ? ' ' + where : ''}${order ? ' ' + order : ''}${limit ? ' ' + limit : ''}${offset ? ' ' + offset : ''};`;
 }

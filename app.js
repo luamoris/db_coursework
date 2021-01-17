@@ -1,23 +1,13 @@
-// Main app
-
-/*----------------------------------------------*/
-const Database = require('./database/storage/db');
-const config = require('./database/configs/pg');
-const fs = require('fs');
-/*----------------------------------------------*/
-
-
-/*=======================================
-	Constants
-=======================================*/
-
-const path = './data/data.json';
-
+// Main App
 
 /*=======================================
 	Start
 =======================================*/
 
+const Show = require('./view/show');
+Show.StartProcess();
+
+/*======================================*/
 
 
 const options = {
@@ -64,37 +54,3 @@ const options = {
 		category: 'ASC'
 	}
 }
-
-
-async function start() {
-
-	// await db.insertData(path);
-
-	// const res = await db.getAll(10, { price: 'DESC', date: 'DESC' })
-
-	const res = await db.getSearch({
-		select: {
-			unique: 'DISTINCT',
-			id: true,
-			title: true,
-			price: true,
-			date: true,
-			category: true,
-			goods_id: true,
-		},
-		restrictions: {
-			limit: 10,
-		},
-		where: {
-			category: 528, // 401 - 619
-		},
-		order: {
-			price: 'DESC',
-			date: 'DESC'
-		}
-	});
-	console.table(res.rows);
-}
-
-const db = new Database(config);
-start();

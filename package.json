@@ -21,7 +21,9 @@
   },
   "homepage": "https://github.com/luamoris/db_coursework#readme",
   "dependencies": {
+    "as-table": "^1.0.55",
     "cheerio": "^1.0.0-rc.5",
+    "colors": "^1.4.0",
     "jsdom": "^16.4.0",
     "needle": "^2.6.0",
     "pg": "^8.5.1",
