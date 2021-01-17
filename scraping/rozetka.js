@@ -14,7 +14,7 @@ const fs = require('fs');
 =======================================*/
 
 const URL = 'https://rozetka.com.ua/';
-const path = './../data/data.json';
+const path = 'data/data.json';
 const results = [];
 
 const query = Tress(GetProducts, 7);

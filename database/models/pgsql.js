@@ -1,18 +1,21 @@
 // Model: PostgresSQL
 
 /*------------------------------------*/
-const { Pool } = require('pg');
+const { Pool, Client } = require('pg');
 /*------------------------------------*/
 
 class PgSQL {
 
-	constructor(config) {
-		this.config = config;
+	constructor(master, slave) {
+		this.master = master;
+		this.slave = slave;
 		this.pool = null;
 	}
 
-	async connect() {
-		try { this.pool = await new Pool(this.config); }
+	async connect(host) {
+		try {
+			this.pool = await new Pool(host);
+		}
 		catch (ex) { console.log(`Error connection.\n${ex.stack}`); }
 	}
 
@@ -21,11 +24,36 @@ class PgSQL {
 		catch (ex) { console.log(`Error disconnection.\n${ex.stack}`); }
 	}
 
-	async request(query) {
+	async requestHost(query, host) {
 		let result = null;
 		try {
-			await this.connect();
+			await this.connect(host);
 			result = await this.pool.query(query);
+		}
+		catch (ex) { console.error(`Error query.\n${ex.stack}`); }
+		finally {
+			await this.disconnected();
+			return result;
+		}
+	}
+
+	async request(query) {
+		const res_m = await this.requestHost(query, this.master);
+		if (!res_m) {
+			const res_s = await this.requestHost(query, this.slave);
+			if (!res_s) {
+				return null;
+			}
+			return res_s;
+		}
+		return res_m;
+	}
+
+	async requestWithValuesHost(query, values, host) {
+		let result = null;
+		try {
+			await this.connect(host);
+			result = await this.pool.query(query, values);
 		}
 		catch (ex) { console.log(`Error query.\n${ex.stack}`); }
 		finally {
@@ -35,16 +63,15 @@ class PgSQL {
 	}
 
 	async requestWithValues(query, values) {
-		let result = null;
-		try {
-			await this.connect();
-			result = await this.pool.query(query, values);
+		const res_m = await this.requestWithValuesHost(query, values, this.master);
+		if (!res_m) {
+			const res_s = await this.requestWithValuesHost(query, values, this.slave);
+			if (!res_s) {
+				return null;
+			}
+			return res_s;
 		}
-		catch (ex) { console.log(`Error query.\n${ex.stack}`); }
-		finally {
-			await this.disconnected();
-			return result;
-		}
+		return res_m;
 	}
 }
 
