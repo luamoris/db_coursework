@@ -231,6 +231,7 @@ h1,h2,h3,h4,h5,h6{font-size: inherit; font-weight: inherit;}
 .product .item-content {
 	height: 100%;
 	background-color: rgba(255, 255, 255, 0.5);
+	border-radius: 3px;
 }
 
 .product .item-content-top {
@@ -286,6 +287,7 @@ h1,h2,h3,h4,h5,h6{font-size: inherit; font-weight: inherit;}
 	background-color: darksalmon;
 	border-radius: 3px;
 	order: 2;
+	margin-bottom: 10px;
 }
 
 
@@ -307,4 +309,9 @@ h1,h2,h3,h4,h5,h6{font-size: inherit; font-weight: inherit;}
 
 ::-webkit-scrollbar-button {
     height: 5px;
+}
+
+svg {
+	background-color: rgb(255 255 255 / 10%);
+	border-radius: 3px;
 }

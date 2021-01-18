@@ -86,7 +86,7 @@ async function Execute(data) {
 	input = com === commands.search[0] ? SearchProductInput(params) : input;
 	input = com === commands.insert && params.length === 0 ? path : input;
 
-	console.clear();
+	// console.clear();
 	if ((com === commands.exit.word && input === null) || com === commands.exit.null) { EndProcess(); }
 	else {
 		if (input === null) { console.error('\nError with parameters.\n') }

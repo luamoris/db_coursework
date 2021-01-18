@@ -9,6 +9,7 @@ class Database {
 
 	constructor(config) {
 		this.db = new PgSQL(config.MASTER, config.SLAVE);
+		this.EXPLAIN = [];
 	}
 
 	async insert(product) {
@@ -57,8 +58,27 @@ class Database {
 
 	async getSearchProduct(options) {
 		const query = createQuery(options);
+		await this.getQueryTime(options);
 		const res = await this.db.request(query);
 		return res;
+	}
+
+	async getQueryTime(options) {
+		options.explain = true;
+		options.scan = {};
+		options.scan.seqscan = true;
+		options.scan.bitmapscan = false;
+
+		let query = createQuery(options);
+		const seq = await this.db.request(query);
+
+		options.scan.seqscan = false;
+		options.scan.bitmapscan = true;
+
+		query = createQuery(options);
+		const index = await this.db.request(query);
+
+		this.EXPLAIN.push({ seq: getTimeExplain(seq), index: getTimeExplain(index) });
 	}
 
 }
@@ -84,7 +104,7 @@ async function getCategoryid(db, category) {
 }
 
 function createQuery(options) {
-	const scan = options.scan ? `SET enable_seqscan = ${options.scan.seqscan === true ? 'ON' : 'OFF'}; SET enable_bitmapscan = ${options.scan.bitmapscan === true ? 'ON' : 'OFF'};` : ``;
+	const scan = options.scan ? `SET enable_seqscan = ${options.scan.seqscan === true ? 'ON' : 'OFF'}; SET enable_bitmapscan = ${options.scan.bitmapscan === true ? 'ON' : 'OFF'}; SET enable_indexscan = ${options.scan.bitmapscan === true ? 'ON' : 'OFF'};` : ``;
 	const explain = options.explain ? `EXPLAIN ANALYZE` : ``;
 
 	let select = options.select ? 'SELECT' : `SELECT *`;
@@ -148,4 +168,10 @@ function createDate(date) {
 	const fullDate = `${date.year}-${month}-${day}`;
 	const d = new Date(fullDate);
 	return d.toISOString();
+}
+
+function getTimeExplain(res) {
+	const rows = res[res.length - 1].rows;
+	const plan = rows[rows.length - 1]['QUERY PLAN'];
+	return plan.slice(16, plan.length);
 }

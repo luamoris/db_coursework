@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const categories = document.querySelector("select[name='category']");
 	const butSearchCategory = document.getElementById("search-category");
 	const butSearchGoods = document.getElementById("search-goods");
+	const butSearchExplain = document.getElementById("search-explain");
 
 	function addCategories() {
 		const query = JSON.stringify({});
@@ -28,9 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	addCategories();
 	butSearchCategory.addEventListener("click", SearchCategory);
 	butSearchGoods.addEventListener("click", SearchGoods);
+	butSearchExplain.addEventListener("click", SearchExplain);
 
 });
 
+
+
+function SearchExplain(event) {
+	event.preventDefault();
+	Search('/explain', {}, res => {
+		const ChartGoods = document.querySelector('#chart-goods');
+		const Product = document.querySelector('.product');
+		ChartGoods.innerHTML = '';
+		Product.innerHTML = '';
+		console.log(res);
+		CreateChartExplain('#chart-goods', res);
+	});
+}
 
 
 function SearchGoods(event) {
@@ -51,7 +66,7 @@ function SearchGoods(event) {
 		where: { goods_id: parseInt(goods.value) },
 		order: { date: 'DESC' }
 	};
-	Search(event, options, res => {
+	Search('/search', options, res => {
 		const ChartGoods = document.querySelector('#chart-goods');
 		const Product = document.querySelector('.product');
 		ChartGoods.innerHTML = '';
@@ -81,7 +96,7 @@ function SearchCategory(event) {
 		where: { category: category.value },
 		order: { date: date.value, price: price.value }
 	};
-	Search(event, options, res => {
+	Search('/search', options, res => {
 		const ChartCategory = document.querySelector('#chart-category');
 		const ProductsList = document.querySelector('.products_list');
 		ChartCategory.innerHTML = '';
@@ -92,10 +107,10 @@ function SearchCategory(event) {
 	});
 }
 
-function Search(event, options, handle) {
+function Search(post, options, handle) {
 	const query = JSON.stringify(options);
 	let req = new XMLHttpRequest();
-	req.open('POST', '/search', true);
+	req.open('POST', post, true);
 	req.setRequestHeader("Content-Type", "application/json");
 	req.send(query);
 	req.addEventListener('load', () => {
@@ -155,9 +170,10 @@ function CreateChartCategory(chart_id, data) {
 		.enter()
 		.append("rect")
 		.merge(u)
+		.attr("x", function (d) { return x(d.goods_id.toString()); })
+		.attr("y", function (d) { return y('0'); })
 		.transition()
 		.duration(1000)
-		.attr("x", function (d) { return x(d.goods_id.toString()); })
 		.attr("y", function (d) { return y(d.price); })
 		.attr("width", x.bandwidth())
 		.attr("height", function (d) { return height - y(d.price); })
@@ -323,6 +339,125 @@ function CreateChartOfProduct(chart_id, data) {
 
 }
 
+function CreateChartExplain(chart_id, data) {
+	if (data.length < 2) return;
+	const margin = { top: 10, right: 40, bottom: 40, left: 40 };
+	const width = 700 - margin.left - margin.right;
+	const height = 470 - margin.top - margin.bottom;
+
+	let svg = d3
+		.select(chart_id)
+		.append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+	;
+
+
+	let parsems = str => { return parseFloat(str.slice(0, str.length - 2).trim()) };
+	data.map(x => { x.seq = parsems(x.seq); x.index = parsems(x.index); });
+
+	let allGroup = ["seq", "index"];
+
+	let dataReady = allGroup.map(grpName => {
+		return {
+			name: grpName,
+			values: data.map(function (d, id) {
+				return { id: id + 1, value: d[grpName] };
+			})
+		};
+	});
+
+	let myColor = d3
+		.scaleOrdinal()
+		.domain(allGroup)
+		.range(["orange", "steelblue"])
+	;
+
+	let x = d3
+		.scaleLinear()
+		.domain([0, data.length + 1])
+		.range([0, width])
+	;
+
+	svg
+		.append("g")
+		.attr("transform", "translate(0," + height + ")")
+		.call(d3.axisBottom(x))
+	;
+
+	let y = d3
+		.scaleLinear()
+		.domain([0, d3.max(data, function (d) { return d.seq > d.index ? + d.seq : d.index; })])
+		.range([height, 0])
+	;
+
+	svg
+		.append("g")
+		.call(d3.axisLeft(y))
+	;
+
+	let line = d3
+		.line()
+		.x(function (d) { return x(+d.id) })
+		.y(function (d) { return y(+d.value) })
+	;
+
+	svg
+		.selectAll("myLines")
+		.data(dataReady)
+		.enter()
+		.append("path")
+		.attr("d", function (d) { return line(d.values) })
+		.attr("stroke", function (d) { return myColor(d.name) })
+		.style("stroke-width", 4)
+		.style("fill", "none")
+	;
+
+	svg
+		.selectAll("myDots")
+		.data(dataReady)
+		.enter()
+		.append('g')
+		.style("fill", function (d) { return myColor(d.name) })
+		.selectAll("myPoints")
+		.data(function (d) { return d.values })
+		.enter()
+		.append("circle")
+		.attr("cx", function (d) { return x(d.id) })
+		.attr("cy", function (d) { return y(d.value) })
+		.attr("r", 5)
+		.attr("stroke", "white")
+	;
+
+	svg
+		.selectAll("myLabels")
+		.data(dataReady)
+		.enter()
+		.append('g')
+		.append("text")
+		.datum(function (d) { return { name: d.name, value: d.values[d.values.length - 1] }; }) 
+		.attr("transform", function (d) { return "translate(" + x(d.value.id) + "," + y(d.value.value) + ")"; }) 
+		.attr("x", 12) 
+		.text(function (d) { return d.name; })
+		.style("fill", function (d) { return myColor(d.name) })
+		.style("font-size", 15)
+	;
+
+	svg
+		.selectAll("text")
+		.attr("fill", "#c6c6c6")
+		.attr("font-size", "10px")
+		;
+
+	svg
+		.selectAll("line")
+		.attr("stroke", "#c6c6c6")
+		;
+
+}
+
 function createItemContent(product) {
 	const item_content_top = document.createElement('div');
 	item_content_top.classList.add('item-content-top')
@@ -386,3 +521,4 @@ function createProductItemFull(product) {
 
 	return item_content;
 }
+

@@ -64,6 +64,11 @@ app.post("/search", jsonParser, async (req, res) => {
 	res.end(JSON.stringify(result.rows));
 });
 
+app.post("/explain", jsonParser, async (req, res) => {
+	if(!req.body) return res.sendStatus(400);
+	res.end(JSON.stringify(db.EXPLAIN));
+});
+
 app.use((err, req, res, next) => { console.log(`On error: ${err.message}`); });
 
 // start
