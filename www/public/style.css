@@ -1,0 +1,246 @@
+
+*{padding: 0; margin: 0; border: 0;}
+html,body{height: 100%; width: 100%; font-size: 100%; line-height: 1; font-size: 14px; -ms-text-size-adjust: 100%; -moz-text-size-adjust: 100%; -webkit-text-size-adjust: 100%;}
+*,*::before,*::after{-moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;}
+:focus, :active{outline: none;}
+a:focus,a:active{outline: none;}
+nav,footer,header,aside{display: block;}
+input,button,textarea{font-family: 'Montserrat'; font-style: normal; font-weight: normal; }
+input::-ms-clear{display: none;}
+button{cursor: pointer;}
+button::-moz-focus-inner {padding:0; border:0;}
+a, a:visited{text-decoration: none;}
+a:hover{text-decoration: none;}
+ul li{list-style: none;}
+img{vertical-align: top;}
+h1,h2,h3,h4,h5,h6{font-size: inherit; font-weight: inherit;}
+
+
+.wrapper {
+	display: flex;
+	justify-content: center;
+	align-self: center;
+	width: 100%;
+	height: 100%;
+}
+
+.main {
+	width: 100%;
+	height: 100%;
+	background: #434343;
+}
+
+.conteiner {
+	max-width: 1920px;
+	padding: 50px 30px;
+	margin: 0 auto;
+}
+
+.main__body {
+	width: 100%;
+	height: calc(100vh - 100px);
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.forms {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-self: start;
+	height: 100%;
+}
+
+
+.form {
+	max-width: 400px;
+	padding: 20px 10px;
+	margin-bottom: 20px;
+	border-radius: 5px;
+	color: white;
+}
+
+.form * {
+	outline: none;
+	position: relative;
+}
+
+.form__title {
+	font-size: 50px;
+	font-weight: 700;
+	margin: 0px 0px 30px 0px;
+}
+
+.form__item {
+	margin: 0px 0px 20px 0px;
+}
+
+.form__label {
+	font-size: 20px;
+	display: block;
+	margin: 0px 0px 10px 0px;
+}
+
+.form__input {
+	height: 40px;
+	padding: 0px 20px;
+	border-radius: 5px;
+	width: 100%;
+	font-size: 16px;
+	transition: box-shadow 300ms ease 0ms;
+}
+
+.select {
+	height: 40px;
+	width: 100%;
+	border-radius: 5px;
+	font-size: 16px;
+	padding: 0px 20px;
+	cursor: pointer;
+}
+
+.button {
+	text-align: center;
+	padding: 5px 10px;
+	border-radius: 3px;
+	background-color: tomato;
+	color: white;
+	font-size: 14px;
+}
+
+.button:hover {
+	background-color: rgb(177, 55, 33);
+}
+
+.charts {
+	width: calc(100% - 420px);
+	height: 100%;
+	background-color: #535353;
+	border-radius: 3px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.chart {
+	padding: 10px;
+	width: 50%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+}
+
+#ch {
+	height: 470px;
+	width: 100%;
+}
+
+.products {
+	height: calc(100% - 490px);
+	width: 100%;
+	overflow-y: auto;
+}
+
+.products_list {
+	width: 100%;
+	height: 100%;
+}
+
+.products_item {
+	width: calc(100% - 5px);
+	min-height: 75px;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	background-color: rgba(255, 255, 255, 0.5);
+}
+
+.products_item:hover {
+	background-color: rgba(255, 255, 255, 0.8);;
+}
+
+.products_item:last-child {
+	margin: 0;
+}
+
+.item-content {
+	width: 100%;
+	min-height: 75px;
+	padding: 10px 20px;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: flex-start;
+}
+
+.item-content span {
+	font-family: system-ui;
+	color: #434343;
+	font-size: 16px;
+}
+
+.item-content-top,
+.item-content-bottom {
+	width: 100%;
+	display: flex;
+}
+
+.item-content-top {
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: flex-start;
+}
+
+.item-content-top span:first-child {
+	font-size: 17px;
+	font-weight: 600;
+	margin-bottom: 5px;
+}
+
+.item-content-top span:last-child {
+	font-size: 13px;
+	margin-bottom: 10px;
+}
+
+.item-content-bottom {
+	justify-content: space-between;
+	align-items: flex-end;
+}
+
+.item-content-bottom span:first-child {
+	font-weight: 500;
+	border-radius: 3px;
+	padding: 2px 4px;
+	background-color: tomato;
+	color: white;
+}
+
+.item-content-bottom span:last-child {
+	font-size: 14px;
+}
+
+
+
+
+
+::-webkit-scrollbar-track {
+    background-color: transparent;
+    padding-left: 5px;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+	border-radius: 3px;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+::-webkit-scrollbar-button {
+    height: 5px;
+}

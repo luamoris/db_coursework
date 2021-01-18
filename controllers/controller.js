@@ -82,14 +82,14 @@ module.exports = {
 		}
 
 		let isOrder = false;
-		if (input.order.price) {
-			if (!isOrder) { set.order = {}; }
-			set.order.price = input.order.price;
-			isOrder = true;
-		}
 		if (input.order.date) {
 			if (!isOrder) { set.order = {}; }
 			set.order.date = input.order.date;
+			isOrder = true;
+		}
+		if (input.order.price) {
+			if (!isOrder) { set.order = {}; }
+			set.order.price = input.order.price;
 			isOrder = true;
 		}
 

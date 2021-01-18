@@ -50,7 +50,7 @@ class Database {
 	}
 
 	async getAllCategories(limit = 0, offset = 0) {
-		const query = `SELECT * FROM categories` + (limit != 0 ? ` LIMIT ${limit}` : '') + (offset != 0 ? ` OFFSET ${offset}` : '') + ';';
+		const query = `SELECT * FROM categories` + ` ORDER BY category` + (limit != 0 ? ` LIMIT ${limit}` : '') + (offset != 0 ? ` OFFSET ${offset}` : '') + ';';
 		const res = await this.db.request(query);
 		return res;
 	}
