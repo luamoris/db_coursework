@@ -15,7 +15,7 @@
 			<div class="conteiner">
 				<div class="main__body">
 
-					
+
 					<div class="forms">
 						<div class="form">
 							<form name="search_category">
@@ -37,7 +37,7 @@
 										<option value="ASC" selected>Возрастание</option>
 									</select>
 								</div>
-								<button class="button" type="submit" id="search-category">Поиск</button>
+								<button class="button" type="submit" id="search-category">Применить</button>
 							</form>
 						</div>
 						<div class="form">
@@ -46,18 +46,23 @@
 									<label for="formName" class="form__label">Номер товара:</label>
 									<input id="formName" type="number" min="0" step="1" value="0" name="goods" class="form__input">
 								</div>
-								<button class="button" type="submit" id="search-goods">Поиск</button>
+								<button class="button" type="submit" id="search-goods">Применить</button>
 							</form>
 						</div>
 					</div>
 					<div class="charts">
-						<div class="chart" id="chart-category">
-							<div id="ch"></div>
+						<div class="chart">
+							<div id="chart-category"></div>
 							<div class="products">
 								<ul class="products_list"></ul>
 							</div>
 						</div>
-						<div class="chart" id="chart-goods"></div>
+						<div class="chart">
+							<div id="chart-goods"></div>
+							<div class="product">
+								
+							</div>
+						</div>
 					</div>
 
 

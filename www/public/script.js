@@ -6,9 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const butSearchCategory = document.getElementById("search-category");
 	const butSearchGoods = document.getElementById("search-goods");
 
-	const ChartGoods = document.querySelector('#chart-goods');
-
-
 	function addCategories() {
 		const query = JSON.stringify({});
 		let req = new XMLHttpRequest();
@@ -55,7 +52,12 @@ function SearchGoods(event) {
 		order: { date: 'DESC' }
 	};
 	Search(event, options, res => {
-		console.log(res);
+		const ChartGoods = document.querySelector('#chart-goods');
+		const Product = document.querySelector('.product');
+		ChartGoods.innerHTML = '';
+		Product.innerHTML = '';
+		CreateChartOfProduct('#chart-goods', res);
+		Product.appendChild(createProductItemFull(res[0]));
 	});
 }
 
@@ -80,12 +82,13 @@ function SearchCategory(event) {
 		order: { date: date.value, price: price.value }
 	};
 	Search(event, options, res => {
-		const ChartCategory = document.querySelector('#ch');
+		const ChartCategory = document.querySelector('#chart-category');
 		const ProductsList = document.querySelector('.products_list');
 		ChartCategory.innerHTML = '';
 		ProductsList.innerHTML = '';
-		CreateChartCategory2('#ch', res);
+		CreateChartCategory('#chart-category', res);
 		for (const p of res) { ProductsList.appendChild(createProductItem(p)); }
+		ProductsList.parentElement.scrollTop = 0;
 	});
 }
 
@@ -101,7 +104,7 @@ function Search(event, options, handle) {
 	});
 }
 
-function CreateChartCategory2(chart_id, data) {
+function CreateChartCategory(chart_id, data) {
 	const margin = { top: 10, right: 40, bottom: 40, left: 40 };
 	const width = 700 - margin.left - margin.right;
 	const height = 470 - margin.top - margin.bottom;
@@ -137,19 +140,6 @@ function CreateChartCategory2(chart_id, data) {
 		.attr("class", "myYaxis")
 	;
 
-	// const data = [
-	// 	{ group: "A", var1: 12, var2: 3},
-	// 	{ group: "B", var1: 23, var2: 3 },
-	// 	{ group: "C", var1: 4, var2: 3 },
-	// 	{ group: "D", var1: 8, var2: 3 },
-	// 	{ group: "E", var1: 9, var2: 3 },
-	// 	{ group: "F", var1: 10, var2: 3 },
-	// 	{ group: "G", var1: 2, var2: 3 },
-	// 	{ group: "H", var1: 3, var2: 3 },
-	// 	{ group: "I", var1: 12, var2: 3 },
-	// 	{ group: "J", var1: 22, var2: 3 },
-	// ];
-
 	x.domain(data.map(function (d) { return d.goods_id.toString(); }))
 	xAxis.transition().duration(1000).call(d3.axisBottom(x))
 
@@ -171,40 +161,201 @@ function CreateChartCategory2(chart_id, data) {
 		.attr("y", function (d) { return y(d.price); })
 		.attr("width", x.bandwidth())
 		.attr("height", function (d) { return height - y(d.price); })
-		.attr("fill", "rgb(255 146 102)")
+		.attr("fill", "rgba(255, 146, 102, 0.9)")
 	;
 
+	let Tooltip = d3
+		.select(chart_id)
+		.append("div")
+		.style("opacity", 0)
+		.attr("class", "tooltip")
+		.style("position", "absolute")
+		.style("top", "0px")
+		.style("left", "0px")
+		.style("background-color", "#434343")
+		.style("color", "white")
+		.style("border-width", "2px")
+		.style("border-radius", "3px")
+		.style("padding", "5px")
+		.style("font-family", "system-ui")
+		;
 
+	let mouseover = d => { Tooltip.style("opacity", 1); };
+
+	let mousemove = d => {
+		Tooltip
+			.html(`${d.title}.<br><br>Price: ${d.price} ₴`)
+			.style('width', '150px')
+			.style("left", (d3.event.pageX + 20) + "px")
+			.style("top", (d3.event.pageY) + "px")
+			;
+	};
+
+	let mouseleave = d => { Tooltip.style("opacity", 0); };
+
+	svg
+		.selectAll("rect")
+		.on("mouseover", mouseover)
+		.on("mousemove", mousemove)
+		.on("mouseleave", mouseleave)
+	;
+
+	svg
+		.selectAll("text")
+		.attr("fill", "#c6c6c6")
+		.attr("font-size", "10px")
+		;
+
+	svg
+		.selectAll("line")
+		.attr("stroke", "#c6c6c6")
+		;
 
 }
 
-function createProductItem(product) {
+function CreateChartOfProduct(chart_id, data) {
+	const margin = { top: 10, right: 40, bottom: 40, left: 40 };
+	const width = 700 - margin.left - margin.right;
+	const height = 470 - margin.top - margin.bottom;
+
+	let svg = d3
+		.select(chart_id)
+		.append("svg")
+		.attr("width", width + margin.left + margin.right)
+		.attr("height", height + margin.top + margin.bottom)
+		.append("g")
+		.attr("transform","translate(" + margin.left + "," + margin.top + ")")
+	;
+
+	data.map(d => { d.date = d3.timeParse("%Y-%m-%d")((d.date.split('T'))[0]) })
+
+	let x = d3
+		.scaleTime()
+		.domain(d3.extent(data, function (d) { return d.date; }))
+		.range([0, width])
+	;
+
+	let y = d3
+		.scaleLinear()
+		.domain([0, d3.max(data, function (d) { return + d.price })])
+		.range([height, 0])
+	;
+
+	svg
+		.append("g")
+		.attr("transform", "translate(0," + height + ")")
+		.call(d3.axisBottom(x))
+	;
+
+	svg
+		.append("g")
+		.call(d3.axisLeft(y))
+	;
+
+	svg
+		.append("path")
+		.datum(data)
+		.attr("fill", "none")
+		.attr("stroke", "tomato")
+		.attr("stroke-width", 2)
+		.attr("d", d3.line()
+			.curve(d3.curveBasis)
+			.x(function (d) { return x(d.date) })
+			.y(function (d) { return y(d.price) })
+		)
+	;
+
+	let Tooltip = d3
+		.select(chart_id)
+		.append("div")
+		.style("opacity", 0)
+		.attr("class", "tooltip")
+		.style("position", "absolute")
+		.style("top", "0px")
+		.style("left", "0px")
+		.style("background-color", "#434343")
+		.style("color", "white")
+		.style("border-width", "2px")
+		.style("border-radius", "3px")
+		.style("padding", "5px")
+	;
+
+	let mouseover = d => { Tooltip.style("opacity", 1); };
+
+	let mousemove = d => {
+		Tooltip
+			.html(d.price + " ₴")
+			.style("left", (d3.event.pageX + 20) + "px")
+			.style("top", (d3.event.pageY) + "px")
+		;
+	};
+
+	let mouseleave = d => { Tooltip.style("opacity", 0); };
+
+	svg
+		.append("g")
+		.selectAll("dot")
+		.data(data)
+		.enter()
+		.append("circle")
+		.attr("class", "myCircle")
+		.attr("cx", function (d) { return x(d.date) })
+		.attr("cy", function (d) { return y(d.price) })
+		.attr("r", 8)
+		.attr("stroke", "white")
+		.attr("stroke-width", 3)
+		.attr("fill", "tomato")
+		.on("mouseover", mouseover)
+		.on("mousemove", mousemove)
+		.on("mouseleave", mouseleave)
+	;
+
+	svg
+		.selectAll("text")
+		.attr("fill", "#c6c6c6")
+		.attr("font-size", "10px")
+	;
+
+	svg
+		.selectAll("line")
+		.attr("stroke", "#c6c6c6")
+	;
+
+}
+
+function createItemContent(product) {
 	const item_content_top = document.createElement('div');
-		item_content_top.classList.add('item-content-top')
+	item_content_top.classList.add('item-content-top')
 	const products_title = document.createElement('span');
-		products_title.classList.add('products_title');
-		products_title.innerText = product.title;
+	products_title.classList.add('products_title');
+	products_title.innerText = product.title;
 	const products_goods = document.createElement('span');
-		products_goods.classList.add('products_goods');
-		products_goods.innerText = 'id: ' + product.goods_id;
+	products_goods.classList.add('products_goods');
+	products_goods.innerText = 'id: ' + product.goods_id;
 	item_content_top.appendChild(products_title);
 	item_content_top.appendChild(products_goods);
 
 	const item_content_bottom = document.createElement('div');
-		item_content_bottom.classList.add('item-content-bottom')
+	item_content_bottom.classList.add('item-content-bottom')
 	const products_price = document.createElement('span');
-		products_price.classList.add('products_price');
-		products_price.innerText = product.price + ' ₴';
+	products_price.classList.add('products_price');
+	products_price.innerText = product.price + ' ₴';
 	const products_date = document.createElement('span');
-		products_date.classList.add('products_date');
-		products_date.innerText = '[' + (new Date(product.date)).toLocaleDateString() + ']';
+	products_date.classList.add('products_date');
+	products_date.innerText = '[' + (new Date(product.date)).toLocaleDateString() + ']';
 	item_content_bottom.appendChild(products_price);
 	item_content_bottom.appendChild(products_date);
 
 	const item_content = document.createElement('div');
-		item_content.classList.add('item-content')
+	item_content.classList.add('item-content')
 	item_content.appendChild(item_content_top);
 	item_content.appendChild(item_content_bottom);
+
+	return item_content;
+}
+
+function createProductItem(product) {
+	const item_content = createItemContent(product);
 
 	const link = document.createElement('a');
 		link.href = product.url;
@@ -216,4 +367,22 @@ function createProductItem(product) {
 	products_item.append(link);
 
 	return products_item;
+}
+
+function createProductItemFull(product) {
+	const link = document.createElement('a');
+		link.href = product.url;
+		link.target = '_blank';
+	const link_text = document.createElement('span');
+		link_text.innerText = 'Приобрести';
+	link.appendChild(link_text);
+
+	const img = document.createElement('div');
+	img.classList.add('products_img');
+
+	const item_content = createItemContent(product);
+	item_content.appendChild(link);
+	item_content.appendChild(img);
+
+	return item_content;
 }
