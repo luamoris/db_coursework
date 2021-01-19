@@ -4,8 +4,8 @@
   "description": "Second year student work. Group KP-92.",
   "main": "app.js",
   "scripts": {
-    "test": "node scraping/rozetka.js",
-    "start": "node app.js"
+    "test": "node ./app.js",
+    "start": "node ./www/site.js"
   },
   "repository": {
     "type": "git",
